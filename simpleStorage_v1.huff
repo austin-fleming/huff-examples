@@ -1,0 +1,15 @@
+#define constant SLOT_0 = FREE_STORAGE_POINTER()
+#define constant SLOT_1 = FREE_STORAGE_POINTER()
+
+#define macro SET_5() = takes(0) returns(0) {
+    0x05        // [0x05]
+    [SLOT_0]    // [0x05, SLOT_0]
+    sstore      // [] store 0x05 in SLOT_0
+}
+
+#define macro READ_5() = takes(0) returns(0) {
+    [SLOT_0]
+    sload
+}
+
+#define macro MAIN() = takes(0) returns(0)

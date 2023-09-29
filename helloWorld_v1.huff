@@ -1,0 +1,40 @@
+/* 
+https://docs.huff.sh/tutorial/hello-world/#implementation
+
+This example shows the typical way of dealing with strings. For a more concise, efficient method, see the "Seaport" method.
+
+Strings are a dynamic type of 3 32byte parts:
+    - Offset
+    - Length
+    - Values
+ 
+Example:
+
+0x00            0000000000000000000000000000000000000000000000000000000000000020 // The location of the "Hello, world!" data
+0x20            000000000000000000000000000000000000000000000000000000000000000d // The length of "Hello, world!" in bytes
+0x40            48656c6c6f2c20776f726c642100000000000000000000000000000000000000 // Value "Hello, world!"
+ */
+
+#define macro MAIN() = takes(0) returns(0) {
+    // store dynamic offset of 0x20 at 0x00
+    0x20    // [0x20]
+    0x00    // [0x20,0x00]
+    mstore  // [] <0x20>
+
+    // store string length of 0x0d
+    0x0d    // [0x0d] 13 bytes, len("Hello, world!")
+    0x20    // [0x0d,0x20]
+    mstore  // [] <0x20,0x0d>
+
+    // store bytes for "Hello, World!" at 0x40
+    __RIGHTPAD(0x48656c6c6f2c20776f726c6421)    // ["Hello, world!"]
+    0x40                                        // ["Hello, world!",0x40]
+    mstore  // [] <0x20,0x0d,"Hello, world!">
+
+    // return 96byte value
+    0x60    // [0x60] // 96, length of 3 data segments
+    0x00    // [0x60,0x00]
+    return  // return 96 bytes starting at position 0
+
+    // could also be written "0x60 0x00 return"
+}

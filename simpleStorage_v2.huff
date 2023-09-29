@@ -1,0 +1,43 @@
+#define function setValue(uint256) nonpayable returns ()
+#define function readValue() nonpayable returns (uint256)
+
+#define constant SLOT_0 = FREE_STORAGE_POINTER()
+
+#define macro SET_VALUE() = takes(0) returns(0) {
+    0x04            // [0x04]
+    calldataload    // [VALUE]
+
+    [SLOT_0]        // [VALUE, pointer]
+    sstore          // sstore pointer value
+}
+
+#define macro GET_VALUE() = takes(0) returns(0) {
+    [SLOT_0]    // [pointer]
+    sload       // [VALUE]
+
+    0x00        // [VALUE, 0x00]
+    mstore      // [] <VALUE>
+
+    0x20        // [0x20] length of data
+    0x00        // [0x20,0x00] location of data
+    return      // [] return 0x00 0x20
+}
+
+#define macro MAIN() = takes(0) returns(0) {
+    0x00 calldataload   // [calldata]
+    0xe0 shr            // [func_sig] get function selector by shifting 214bits, leaving 32bits/4bytes on stack
+
+    dup1 __FUNC_SIG(SET_VALUE) eq setValue jumpi
+    dup1 __FUNC_SIG(GET_VALUE) eq getValue jumpi
+
+    // dispatch
+    // because it takes gas to go through, functions higher up will cost less. This is the same in solidity
+    setValue:
+        SET_VALUE()
+    getValue:
+        GET_VALUE()
+
+    // revert if no match is found
+    // ALWAYS have a stop code (return, stop, revert) at the end of macros, or it will continue executing down the dispatch
+    0x00 0x00 revert
+}

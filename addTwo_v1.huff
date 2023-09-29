@@ -1,0 +1,10 @@
+#define function addTwo(uint256, uint256) view returns (uint256)
+
+#define macro MAIN() = takes(0) returns(0) {
+    0x00 calldataload   // [number1] // load first 32 bytes onto stack
+    0x20 calldataload   // [number2]
+    add                 // [number1 + number2] // add both and put sum on stack
+
+    0x00 mstore         // place [number1] and [number2] in memory
+    0x20 0x00 return    // return result   
+}
